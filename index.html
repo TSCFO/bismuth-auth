@@ -318,15 +318,21 @@
         </li>
         <li>
           <span class="step-num">2</span>
-          <span class="step-text">Abre <strong>Claude Desktop</strong> → <strong>Settings</strong> → <strong>Custom instructions</strong>.</span>
+          <span class="step-text">Abre <strong>Claude Desktop</strong> → <strong>Configuración</strong> → <strong>Instrucciones personalizadas</strong>.</span>
         </li>
         <li>
           <span class="step-num">3</span>
-          <span class="step-text">Añade esta línea al final:<br/><code>My Bismuth API key is: <span class="inline-key"></span></code></span>
+          <span class="step-text">Copia y pega esta línea al final:</span>
         </li>
+      </ol>
+      <div class="key-box" style="margin-bottom:16px">
+        <span class="key-value" id="config-line"></span>
+        <button class="btn-copy" id="btn-copy-config">Copiar</button>
+      </div>
+      <ol class="steps" style="counter-reset: step 3">
         <li>
           <span class="step-num">4</span>
-          <span class="step-text">Haz clic en <strong>Save</strong> y reinicia Claude Desktop.</span>
+          <span class="step-text">Haz clic en <strong>Guardar</strong> y reinicia Claude Desktop.</span>
         </li>
       </ol>
 
@@ -399,7 +405,7 @@
         $('user-name').textContent = data.name;
         $('user-email').textContent = data.email;
         $('mcp-key').textContent = data.mcp_api_key;
-        document.querySelectorAll('.inline-key').forEach(el => el.textContent = data.mcp_api_key);
+        $('config-line').textContent = 'Mi clave de acceso a Bismuth es: ' + data.mcp_api_key;
 
         showState('success');
         window.history.replaceState({}, '', window.location.pathname);
@@ -410,16 +416,21 @@
       }
     }
 
-    $('btn-copy').addEventListener('click', () => {
-      navigator.clipboard.writeText($('mcp-key').textContent).then(() => {
-        $('btn-copy').textContent = '¡Copiado!';
-        $('btn-copy').classList.add('copied');
-        setTimeout(() => {
-          $('btn-copy').textContent = 'Copiar';
-          $('btn-copy').classList.remove('copied');
-        }, 2000);
+    function makeCopyButton(btnId, sourceId) {
+      $(btnId).addEventListener('click', () => {
+        navigator.clipboard.writeText($(sourceId).textContent).then(() => {
+          $(btnId).textContent = '¡Copiado!';
+          $(btnId).classList.add('copied');
+          setTimeout(() => {
+            $(btnId).textContent = 'Copiar';
+            $(btnId).classList.remove('copied');
+          }, 2000);
+        });
       });
-    });
+    }
+
+    makeCopyButton('btn-copy', 'mcp-key');
+    makeCopyButton('btn-copy-config', 'config-line');
 
     const params = new URLSearchParams(window.location.search);
     const code   = params.get('code');
