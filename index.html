@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bismuth · Acceso MCP</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      padding: 48px 40px;
+      max-width: 520px;
+      width: 100%;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+
+    .logo-mark {
+      width: 36px;
+      height: 36px;
+      background: #1a1a2e;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -1px;
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+
+    /* ── LOGIN STATE ── */
+    #state-login h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+    }
+
+    #state-login p {
+      color: #6b7280;
+      font-size: 15px;
+      line-height: 1.5;
+      margin-bottom: 32px;
+    }
+
+    .btn-google {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      padding: 14px 20px;
+      background: #fff;
+      border: 1.5px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      color: #1a1a2e;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      text-decoration: none;
+    }
+
+    .btn-google:hover {
+      border-color: #1a1a2e;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .btn-google svg { flex-shrink: 0; }
+
+    /* ── LOADING STATE ── */
+    #state-loading {
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #e5e7eb;
+      border-top-color: #1a1a2e;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #state-loading p { color: #6b7280; font-size: 15px; }
+
+    /* ── SUCCESS STATE ── */
+    #state-success h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 4px;
+    }
+
+    .greeting-email {
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+
+    .key-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .key-box {
+      display: flex;
+      align-items: center;
+      background: #f9fafb;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      gap: 12px;
+    }
+
+    .key-value {
+      font-family: "SF Mono", "Fira Code", Menlo, monospace;
+      font-size: 13px;
+      color: #1a1a2e;
+      word-break: break-all;
+      flex: 1;
+    }
+
+    .btn-copy {
+      flex-shrink: 0;
+      background: #1a1a2e;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-copy:hover { background: #2d2d4e; }
+    .btn-copy.copied { background: #16a34a; }
+
+    .key-hint {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 32px;
+    }
+
+    .steps-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 14px;
+    }
+
+    .steps {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .steps li {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      background: #1a1a2e;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    .step-text {
+      font-size: 14px;
+      color: #374151;
+      line-height: 1.5;
+    }
+
+    .step-text code {
+      font-family: "SF Mono", "Fira Code", Menlo, monospace;
+      background: #f3f4f6;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 12px;
+      color: #1a1a2e;
+    }
+
+    .alert-info {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #1e40af;
+      line-height: 1.5;
+    }
+
+    /* ── ERROR STATE ── */
+    #state-error h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #991b1b;
+      margin-bottom: 8px;
+    }
+
+    #state-error p {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .btn-retry {
+      display: inline-block;
+      background: #1a1a2e;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <div class="logo-mark">B</div>
+      <span class="logo-text">Bismuth</span>
+    </div>
+
+    <!-- STATE: Login -->
+    <div id="state-login">
+      <h1>Activa tu acceso a Bismuth</h1>
+      <p>Inicia sesión con tu cuenta de Google de TSCFO para obtener tu clave personal y conectarte a Bismuth desde Claude.</p>
+      <a id="btn-google-login" href="#" class="btn-google">
+        <svg width="20" height="20" viewBox="0 0 48 48">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+          <path fill="none" d="M0 0h48v48H0z"/>
+        </svg>
+        Continuar con Google
+      </a>
+    </div>
+
+    <!-- STATE: Loading -->
+    <div id="state-loading" class="hidden">
+      <div class="spinner"></div>
+      <p>Verificando tu cuenta…</p>
+    </div>
+
+    <!-- STATE: Success -->
+    <div id="state-success" class="hidden">
+      <h1>¡Todo listo, <span id="user-name"></span>!</h1>
+      <p class="greeting-email" id="user-email"></p>
+
+      <p class="key-label">Tu API Key personal</p>
+      <div class="key-box">
+        <span class="key-value" id="mcp-key"></span>
+        <button class="btn-copy" id="btn-copy">Copiar</button>
+      </div>
+      <p class="key-hint">Esta clave te identifica en Bismuth. No la compartas.</p>
+
+      <p class="steps-title">Cómo activarla en Claude Desktop</p>
+      <ol class="steps">
+        <li>
+          <span class="step-num">1</span>
+          <span class="step-text">Copia tu API key (botón de arriba).</span>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <span class="step-text">Abre <strong>Claude Desktop</strong> → <strong>Settings</strong> → <strong>Custom instructions</strong>.</span>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <span class="step-text">Añade esta línea al final:<br/><code>My Bismuth API key is: <span class="inline-key"></span></code></span>
+        </li>
+        <li>
+          <span class="step-num">4</span>
+          <span class="step-text">Haz clic en <strong>Save</strong> y reinicia Claude Desktop.</span>
+        </li>
+      </ol>
+
+      <div class="alert-info">
+        A partir de ahora Claude pasará tu clave automáticamente en cada consulta. No necesitarás repetir este proceso.
+      </div>
+    </div>
+
+    <!-- STATE: Error -->
+    <div id="state-error" class="hidden">
+      <h1>No se pudo autenticar</h1>
+      <p id="error-message">Ha ocurrido un error. Asegúrate de iniciar sesión con tu cuenta de Google de TSCFO.</p>
+      <a href="/" class="btn-retry">Intentar de nuevo</a>
+    </div>
+  </div>
+
+  <script>
+    const GOOGLE_CLIENT_ID = '236314002065-4hlgbsgbrcts6thcjq5qlahkben534rc.apps.googleusercontent.com';
+    const XANO_API_BASE    = 'https://xz6q-37ao-pov0.f2.xano.io/api:google-oauth';
+
+    const $ = id => document.getElementById(id);
+    const show = id => $(id).classList.remove('hidden');
+    const hide = id => $(id).classList.add('hidden');
+
+    function showState(state) {
+      ['state-login', 'state-loading', 'state-success', 'state-error'].forEach(s => {
+        s === 'state-' + state ? show(s) : hide(s);
+      });
+    }
+
+    function buildGoogleAuthUrl(redirectUri) {
+      const base = 'https://accounts.google.com/o/oauth2/auth';
+      const params = new URLSearchParams({
+        response_type   : 'code',
+        access_type     : 'online',
+        client_id       : GOOGLE_CLIENT_ID,
+        redirect_uri    : redirectUri,
+        scope           : 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
+        approval_prompt : 'auto',
+        state           : ''
+      });
+      return base + '?' + params.toString();
+    }
+
+    function getRedirectUri() {
+      return window.location.origin + window.location.pathname;
+    }
+
+    function initLogin() {
+      const authUrl = buildGoogleAuthUrl(getRedirectUri());
+      $('btn-google-login').href = authUrl;
+    }
+
+    async function handleCallback(code) {
+      showState('loading');
+      try {
+        const url = XANO_API_BASE + '/oauth/google/mcp-login'
+          + '?code=' + encodeURIComponent(code)
+          + '&redirect_uri=' + encodeURIComponent(getRedirectUri());
+
+        const res  = await fetch(url);
+        const data = await res.json();
+
+        if (!res.ok) {
+          $('error-message').textContent = data.message || data.error || 'Error desconocido. Contacta con Tech.';
+          showState('error');
+          return;
+        }
+
+        $('user-name').textContent = data.name;
+        $('user-email').textContent = data.email;
+        $('mcp-key').textContent = data.mcp_api_key;
+        document.querySelectorAll('.inline-key').forEach(el => el.textContent = data.mcp_api_key);
+
+        showState('success');
+        window.history.replaceState({}, '', window.location.pathname);
+
+      } catch (e) {
+        $('error-message').textContent = 'Error de conexión. Inténtalo de nuevo.';
+        showState('error');
+      }
+    }
+
+    $('btn-copy').addEventListener('click', () => {
+      navigator.clipboard.writeText($('mcp-key').textContent).then(() => {
+        $('btn-copy').textContent = '¡Copiado!';
+        $('btn-copy').classList.add('copied');
+        setTimeout(() => {
+          $('btn-copy').textContent = 'Copiar';
+          $('btn-copy').classList.remove('copied');
+        }, 2000);
+      });
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    const code   = params.get('code');
+    const error  = params.get('error');
+
+    if (error) {
+      $('error-message').textContent = 'Google no autorizó el acceso. Asegúrate de usar tu cuenta corporativa de TSCFO.';
+      showState('error');
+    } else if (code) {
+      handleCallback(code);
+    } else {
+      showState('login');
+      initLogin();
+    }
+  </script>
+</body>
+</html>
