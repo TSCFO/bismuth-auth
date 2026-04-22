@@ -306,7 +306,6 @@
       <p class="key-label">Tu API Key personal</p>
       <div class="key-box">
         <span class="key-value" id="mcp-key"></span>
-        <button class="btn-copy" id="btn-copy">Copiar</button>
       </div>
       <p class="key-hint">Esta clave te identifica en Bismuth. No la compartas.</p>
 
@@ -314,14 +313,10 @@
       <ol class="steps">
         <li>
           <span class="step-num">1</span>
-          <span class="step-text">Copia tu API key (botón de arriba).</span>
-        </li>
-        <li>
-          <span class="step-num">2</span>
           <span class="step-text">Abre <strong>Claude Desktop</strong> → <strong>Configuración</strong> → <strong>Instrucciones personalizadas</strong>.</span>
         </li>
         <li>
-          <span class="step-num">3</span>
+          <span class="step-num">2</span>
           <span class="step-text">Copia y pega esta línea al final:</span>
         </li>
       </ol>
@@ -329,10 +324,10 @@
         <span class="key-value" id="config-line"></span>
         <button class="btn-copy" id="btn-copy-config">Copiar</button>
       </div>
-      <ol class="steps" style="counter-reset: step 3">
+      <ol class="steps" style="counter-reset: step 2">
         <li>
-          <span class="step-num">4</span>
-          <span class="step-text">Haz clic en <strong>Guardar</strong> y reinicia Claude Desktop.</span>
+          <span class="step-num">3</span>
+          <span class="step-text">Haz clic en <strong>Guardar</strong>.</span>
         </li>
       </ol>
 
@@ -429,7 +424,6 @@
       });
     }
 
-    makeCopyButton('btn-copy', 'mcp-key');
     makeCopyButton('btn-copy-config', 'config-line');
 
     const params = new URLSearchParams(window.location.search);
